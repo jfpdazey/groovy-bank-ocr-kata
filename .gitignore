@@ -1,0 +1,5 @@
+*.*~
+.gradle
+build/classes
+build/cobertura
+build/test-results

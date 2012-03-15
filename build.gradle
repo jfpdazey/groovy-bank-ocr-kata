@@ -1,0 +1,63 @@
+apply plugin: 'groovy'
+def githubBase = 'https://raw.github.com/valkolovos/gradle_cobertura/master/ivy'
+apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
+
+sourceCompatibility = 1.6
+version = '1.0'
+
+jar {
+    manifest {
+		attributes 'Implementation-Title': 'OCR Bank Kata in Groovy', 'Implementation-Version': version
+	}	
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	groovy group: 'org.codehaus.groovy', name: 'groovy-all', version: '1.8.6'
+	testCompile group: 'org.spockframework', name: 'spock-core', version: '0.5-groovy-1.8'
+	testCompile group: 'junit', name: 'junit', version: '4.8.+'
+	testRuntime group: 'org.gmetrics', name: 'GMetrics', version: '0.5'
+	testRuntime group: 'net.sourceforge.cobertura', name: 'cobertura', version: '1.9.3'
+}
+
+def gmetricsResultsDir = "${project.reportsDir.path}/metrics"
+
+task initReporting << {
+	ant.mkdir dir: gmetricsResultsDir
+}
+
+task metrics << {
+	// Using AntBuilder
+	ant.taskdef(name: 'gmetrics', classname: 'org.gmetrics.ant.GMetricsTask', classpath: configurations.testRuntime.asPath)
+	ant.gmetrics(metricSetFile: 'file:gmetrics_config.groovy') {
+   		report(type: 'org.gmetrics.report.BasicHtmlReportWriter') {
+       			option(name: 'outputFile', value: "$gmetricsResultsDir/gmetrics_report.html")
+       			option(name: 'title', value: 'OCR Bank Kata')
+   		}
+    	
+    		fileset(dir: 'src/main/groovy') {
+        		include name: '**/*.groovy'
+    		}
+    	
+    		fileset(dir: 'src/test/groovy') {
+        		include name: '**/*.groovy'
+    		}
+	}
+}
+
+metrics.dependsOn {
+    [cobertura, initReporting]
+}
+
+cobertura {
+    coverageSourceDirs = project.sourceSets.main.groovy.srcDirs
+}
+
+cobertura.doLast {
+    println "Cleaning up after Cobertura..."
+    ant.delete dir: "${project.buildDir.path}/instrumented_classes"
+    ant.delete dir: "${project.buildDir.path}/tmp"
+}
