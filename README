@@ -1,0 +1,14 @@
+This project is the BankOCR Kata, written in Groovy.  More information on the kata itself can be found at http://codingdojo.org/cgi-bin/wiki.pl?KataBankOCR.
+
+Please note - this project is built using Gradle, and as such will need: 
+-A working installation of Gradle (preferably the most recent production version); and
+-An appropriate version of Java installed.
+
+The following reports are available (in the reports directory):
+-Cobertura (coverage)
+-Code Metrics (metrics)
+-Test Results (test-results)
+
+A recent version of the metrics will be checked into the repo, but the reports can be run locally using the command 'gradle metrics'.
+
+In addition, 'gradle test' can be used to run the test suite, and 'gradle build' will run a complete build.
